@@ -1274,6 +1274,7 @@ class InfobloxApi:  # pylint: disable=too-many-public-methods,  too-many-instanc
             "_return_as_object": 1,
             "_return_fields": "network,comment,network_view,extattrs,rir_organization,rir",
             "_max_results": 100000,
+            "network_view": "NAD Operations",
         }
         if prefix:
             params.update({"network": prefix})
