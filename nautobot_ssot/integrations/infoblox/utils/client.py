@@ -756,7 +756,7 @@ class InfobloxApi:  # pylint: disable=too-many-public-methods,  too-many-instanc
         logger.info(response.json)
         return response.json()
 
-    def get_all_subnets(self, prefix: str = None):
+    def get_all_subnets(self, prefix: str = None, ipv6: bool = False):
         """Get all Subnets.
 
         Args:
@@ -785,7 +785,11 @@ class InfobloxApi:  # pylint: disable=too-many-public-methods,  too-many-instanc
             },
         ]
         """
-        url_path = "network"
+        if ipv6:
+            url_path = "ipv6network"
+        else:
+            url_path = "network"
+
         params = {
             "_return_as_object": 1,
             "_return_fields": "network,network_view,comment,extattrs,rir_organization,rir,vlans",
@@ -1251,7 +1255,7 @@ class InfobloxApi:  # pylint: disable=too-many-public-methods,  too-many-instanc
 
         return new_list
 
-    def get_network_containers(self, prefix: str = ""):
+    def get_network_containers(self, prefix: str = "", ipv6: bool = False):
         """Get all Network Containers.
 
         Returns:
@@ -1269,7 +1273,10 @@ class InfobloxApi:  # pylint: disable=too-many-public-methods,  too-many-instanc
             }
         ]
         """
-        url_path = "networkcontainer"
+        if ipv6:
+            url_path = "ipv6networkcontainer"
+        else:
+            url_path = "networkcontainer"
         params = {
             "_return_as_object": 1,
             "_return_fields": "network,comment,network_view,extattrs,rir_organization,rir",

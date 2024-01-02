@@ -48,7 +48,7 @@ class InfobloxAdapter(DiffSync):
             )
             raise PluginImproperlyConfigured
 
-    def load_prefixes(self):
+    def load_prefixes(self, ipv6: bool = False):
         """Load InfobloxNetwork DiffSync model."""
         if PLUGIN_CFG.get("infoblox_import_subnets"):
             subnets = []
@@ -71,8 +71,8 @@ class InfobloxAdapter(DiffSync):
             all_networks = self.conn.remove_duplicates(containers) + subnets
         else:
             # Need to load containers here to prevent duplicates when syncing back to Infoblox
-            containers = self.conn.get_network_containers()
-            subnets = self.conn.get_all_subnets()
+            containers = self.conn.get_network_containers(ipv6=ipv6)
+            subnets = self.conn.get_all_subnets(ipv6=ipv6)
             all_networks = containers + subnets
         self.subnets = [(x["network"], x["network_view"]) for x in subnets]
         default_ext_attrs = get_default_ext_attrs(review_list=all_networks)
@@ -146,6 +146,8 @@ class InfobloxAdapter(DiffSync):
         if "infoblox_import_objects" in PLUGIN_CFG:
             if PLUGIN_CFG["infoblox_import_objects"].get("subnets"):
                 self.load_prefixes()
+                if PLUGIN_CFG["infoblox_import_objects"].get("subnets_ipv6"):
+                    self.load_prefixes(ipv6=True)
             if PLUGIN_CFG["infoblox_import_objects"].get("ip_addresses"):
                 self.load_ipaddresses()
             if PLUGIN_CFG["infoblox_import_objects"].get("vlan_views"):
