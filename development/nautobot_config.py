@@ -194,6 +194,7 @@ PLUGINS_CONFIG = {
         "enable_ipfabric": is_truthy(os.getenv("NAUTOBOT_SSOT_ENABLE_IPFABRIC")),
         "enable_itential": is_truthy(os.getenv("NAUTOBOT_SSOT_ENABLE_ITENTIAL")),
         "enable_servicenow": is_truthy(os.getenv("NAUTOBOT_SSOT_ENABLE_SERVICENOW")),
+        "enable_vsphere": is_truthy(os.getenv("NAUTOBOT_SSOT_ENABLE_VSPHERE")),
         "hide_example_jobs": is_truthy(os.getenv("NAUTOBOT_SSOT_HIDE_EXAMPLE_JOBS")),
         "device42_defaults": {
             "site_status": "Active",
@@ -233,6 +234,9 @@ PLUGINS_CONFIG = {
         "servicenow_instance": os.getenv("SERVICENOW_INSTANCE", ""),
         "servicenow_password": os.getenv("SERVICENOW_PASSWORD", ""),
         "servicenow_username": os.getenv("SERVICENOW_USERNAME", ""),
+        "vsphere_username": os.getenv("VSPHERE_USERNAME", ""),
+        "vsphere_password": os.getenv("VSPHERE_PASSWORD", ""),
+        "vsphere_uri": os.getenv("VSPHERE_URI", ""),
     },
     "nautobot_device_lifecycle_mgmt": {
         "barchart_bar_width": float(os.environ.get("BARCHART_BAR_WIDTH", 0.1)),

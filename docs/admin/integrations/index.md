@@ -9,3 +9,4 @@ This Nautobot app supports the following integrations:
 - [IPFabric](./ipfabric_setup.md)
 - [Itential](./itential_setup.md)
 - [ServiceNow](./servicenow_setup.md)
+- [vSphere](./vsphere_setup.md)
