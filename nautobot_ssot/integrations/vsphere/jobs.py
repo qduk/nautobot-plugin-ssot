@@ -9,12 +9,22 @@ from django.templatetags.static import static
 from django.urls import reverse
 from nautobot.core.forms import DynamicModelChoiceField
 from nautobot.extras.jobs import BooleanVar
+from nautobot.extras.choices import (
+    SecretsGroupAccessTypeChoices,
+    SecretsGroupSecretTypeChoices,
+)
 from nautobot.virtualization.models import Cluster
+from nautobot.apps.jobs import ObjectVar
+from diffsync.enum import DiffSyncFlags
 
 from nautobot_ssot.integrations.vsphere import defaults
-from nautobot_ssot.integrations.vsphere.diffsync.adapters import Adapter, VsphereDiffSync
+from nautobot_ssot.integrations.vsphere.diffsync.adapters import (
+    Adapter,
+    VsphereDiffSync,
+)
 from nautobot_ssot.integrations.vsphere.utilities import VsphereClient
 from nautobot_ssot.jobs.base import DataMapping, DataSource
+from nautobot_ssot.models import SSOTvSphereConfig
 
 name = "SSoT - Virtualization"  # pylint: disable=invalid-name
 
@@ -53,22 +63,58 @@ name = "SSoT - Virtualization"  # pylint: disable=invalid-name
 #         )
 
 
+def _get_vsphere_client_config(app_config, debug):
+    """Get Infoblox client config from the Infoblox config instance."""
+    username = app_config.vsphere_instance.secrets_group.get_secret_value(
+        access_type=SecretsGroupAccessTypeChoices.TYPE_REST,
+        secret_type=SecretsGroupSecretTypeChoices.TYPE_USERNAME,
+    )
+    password = app_config.vsphere_instance.secrets_group.get_secret_value(
+        access_type=SecretsGroupAccessTypeChoices.TYPE_REST,
+        secret_type=SecretsGroupSecretTypeChoices.TYPE_PASSWORD,
+    )
+    vsphere_client_config = {
+        "vsphere_uri": app_config.vsphere_instance.remote_url,
+        "username": username,
+        "password": password,
+        "verify_ssl": app_config.vsphere_instance.verify_ssl,
+        "default_vm_status_map": app_config.default_vm_status_map,
+        "default_ip_status_map": app_config.default_ip_status_map,
+        "default_vm_interface_map": app_config.default_vm_interface_map,
+        "primary_ip_sort_by": app_config.primary_ip_sort_by,
+        "ignore_link_local": app_config.default_ignore_link_local,
+        "debug": debug,
+    }
+
+    return vsphere_client_config
+
+
 # pylint:disable=too-few-public-methods
-class VspherecDataSource(DataSource):  # pylint: disable=too-many-instance-attributes
+class VsphereDataSource(DataSource):  # pylint: disable=too-many-instance-attributes
     """vSphere SSoT Data Source."""
 
     debug = BooleanVar(description="Enable for more verbose debug logging")
+    config = ObjectVar(
+        model=SSOTvSphereConfig,
+        display_field="SSOT vSphere Config",
+        required=True,
+        query_params={"enable_sync_to_nautobot": True, "job_enabled": True},
+    )
     sync_vsphere_tagged_only = BooleanVar(
         default=False,
         label="Sync Tagged Only",
         description="Only sync objects that have the 'ssot-synced-from-vsphere' tag.",
     )
-    if defaults.DEFAULT_USE_CLUSTERS:
-        cluster_filter = DynamicModelChoiceField(
-            label="Only sync Nautobot records belonging to a single Cluster.",
-            queryset=Cluster.objects.all(),
-            required=False,
-        )
+    cluster_filter = DynamicModelChoiceField(
+        label="Only sync Nautobot records belonging to a single Cluster.",
+        queryset=Cluster.objects.all(),
+        required=False,
+    )
+
+    def __init__(self):
+        """Initialize vSphereDataSource."""
+        super().__init__()
+        self.diffsync_flags = DiffSyncFlags.CONTINUE_ON_FAILURE
 
     class Meta:
         """Metadata about this Job."""
@@ -77,39 +123,36 @@ class VspherecDataSource(DataSource):  # pylint: disable=too-many-instance-attri
         data_source = "VMWare vSphere"
         data_source_icon = static("nautobot_ssot_vsphere/vmware.png")
         description = "Sync data from VMWare vSphere into Nautobot."
-        field_order = (
-            "debug",
-            "sync_vsphere_tagged_only",
-            "dry_run",
-        )
 
     @classmethod
     def data_mappings(cls):
         """List describing the data mappings involved in this DataSource."""
         return (
-            DataMapping("Data Center", None, "ClusterGroup", reverse("virtualization:clustergroup_list")),
-            DataMapping("Cluster", None, "Cluster", reverse("virtualization:cluster_list")),
-            DataMapping("Virtual Machine", None, "Virtual Machine", reverse("virtualization:virtualmachine_list")),
-            DataMapping("VM Interface", None, "VMInterface", reverse("virtualization:vminterface_list")),
-            DataMapping("IP Addresses", None, "IP Addresses", reverse("ipam:ipaddress_list")),
+            DataMapping(
+                "Data Center",
+                None,
+                "ClusterGroup",
+                reverse("virtualization:clustergroup_list"),
+            ),
+            DataMapping(
+                "Cluster", None, "Cluster", reverse("virtualization:cluster_list")
+            ),
+            DataMapping(
+                "Virtual Machine",
+                None,
+                "Virtual Machine",
+                reverse("virtualization:virtualmachine_list"),
+            ),
+            DataMapping(
+                "VM Interface",
+                None,
+                "VMInterface",
+                reverse("virtualization:vminterface_list"),
+            ),
+            DataMapping(
+                "IP Addresses", None, "IP Addresses", reverse("ipam:ipaddress_list")
+            ),
         )
-
-    @classmethod
-    def config_information(cls):
-        """Configuration of this DataSource."""
-        return {
-            "vSphere URI": defaults.VSPHERE_URI,
-            "vSphere Username": defaults.VSPHERE_USERNAME,
-            "vSphere Verify SSL": "False" if not defaults.VSPHERE_VERIFY_SSL else "True",
-            "vSphere Cluster Type": defaults.DEFAULT_VSPHERE_TYPE,
-            "Enforce ClusterGroup as Top Level": "False" if not defaults.ENFORCE_CLUSTER_GROUP_TOP_LEVEL else "True",
-            "Default Virtual Machine Status Map": defaults.DEFAULT_VM_STATUS_MAP,
-            "Default VMInterface Enabled Map": defaults.VSPHERE_VM_INTERFACE_MAP,
-            "Default IP Status Map": defaults.DEFAULT_IP_STATUS_MAP,
-            "Primary IP Assignment": defaults.PRIMARY_IP_SORT_BY,
-            "Default Use Clusers": defaults.DEFAULT_USE_CLUSTERS,
-            "Default Cluster Name": defaults.DEFAULT_CLUSTER_NAME,
-        }
 
     def log_debug(self, message):
         """Conditionally log a debug message."""
@@ -119,10 +162,13 @@ class VspherecDataSource(DataSource):  # pylint: disable=too-many-instance-attri
     def load_source_adapter(self):
         """Load vSphere adapter."""
         self.logger.info("Connecting to vSphere.")
+        client_config = _get_vsphere_client_config(self.config, self.debug)
+        client = VsphereClient(**client_config)
         self.source_adapter = VsphereDiffSync(
             job=self,
             sync=self.sync,
-            client=VsphereClient(),
+            client=client,
+            config=self.config,
             cluster_filter=self.cluster_filter_object,
         )
         self.logger.debug("Loading data from vSphere...")
@@ -130,9 +176,11 @@ class VspherecDataSource(DataSource):  # pylint: disable=too-many-instance-attri
 
     def load_target_adapter(self):
         """Load Nautobot Adapter."""
+        self.logger.info("Connecting to Nautobot...")
         self.target_adapter = Adapter(
             job=self,
             sync=self.sync,
+            config=self.config,
             sync_vsphere_tagged_only=self.sync_vsphere_tagged_only,
             cluster_filter=self.cluster_filter_object,
         )
@@ -140,29 +188,36 @@ class VspherecDataSource(DataSource):  # pylint: disable=too-many-instance-attri
         self.logger.info(message="Loading current data from Nautobot...")
         self.target_adapter.load()
 
-    def run(self, dryrun, debug, memory_profiling, sync_vsphere_tagged_only, cluster_filter=None, *args, **kwargs):  # pylint: disable=arguments-differ, too-many-arguments
+    def run(
+        self,
+        dryrun,
+        memory_profiling,
+        debug,
+        sync_vsphere_tagged_only,
+        cluster_filter=None,
+        *args,
+        **kwargs,
+    ):  # pylint: disable=arguments-differ, too-many-arguments
         """Run sync."""
         self.dryrun = dryrun
         self.debug = debug
         self.memory_profiling = memory_profiling
         self.sync_vsphere_tagged_only = sync_vsphere_tagged_only
         self.cluster_filter = cluster_filter
-        if defaults.DEFAULT_USE_CLUSTERS:
-            self.cluster_filter_object = (  # pylint: disable=attribute-defined-outside-init
-                Cluster.objects.get(pk=self.cluster_filter) if self.cluster_filter else None
+        self.cluster_filter_object = (  # pylint: disable=attribute-defined-outside-init
+            Cluster.objects.get(pk=self.cluster_filter) if self.cluster_filter else None
+        )
+        self.config = kwargs.get("config")
+        if not self.config.enable_sync_to_nautobot:
+            self.logger.error(
+                "Can't run sync to Nautobot, provided config does not have it enabled."
             )
-        else:
-            self.logger.info(message="`DEFAULT_USE_CLUSTERS` is set to `False`")
-            if defaults.ENFORCE_CLUSTER_GROUP_TOP_LEVEL:
-                self.logger.failure(
-                    message="Cannot `ENFORCE_CLUSTER_GROUP_TOP_LEVEL` and disable `DEFAULT_USE_CLUSTERS`"
-                )
-                self.logger.info(
-                    message="Set `ENFORCE_CLUSTER_GROUP_TOP_LEVEL` to `False` or `DEFAULT_USE_CLUSTERS` to `True`"
-                )
+            raise ValueError("Config not enabled for sync to Nautobot.")
         options = f"`Debug`: {self.debug}, `Dry Run`: {self.dryrun}, `Sync Tagged Only`: {self.sync_vsphere_tagged_only}, `Cluster Filter`: {self.cluster_filter_object}"  # NOQA
         self.logger.info(message=f"Starting job with the following options: {options}")
-        return super().run(dryrun, memory_profiling, sync_vsphere_tagged_only, *args, **kwargs)
+        return super().run(
+            dryrun, memory_profiling, sync_vsphere_tagged_only, *args, **kwargs
+        )
 
 
-jobs = [VspherecDataSource]
+jobs = [VsphereDataSource]
