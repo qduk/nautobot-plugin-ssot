@@ -1,31 +1,50 @@
 # pylint: disable=R0801
 """vSphere Integration model tests."""
+
 import os
 from copy import deepcopy
 from unittest import mock
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from nautobot.extras.choices import SecretsGroupAccessTypeChoices, SecretsGroupSecretTypeChoices
-from nautobot.extras.models import ExternalIntegration, Secret, SecretsGroup, SecretsGroupAssociation, Status
+from nautobot.extras.choices import (
+    SecretsGroupAccessTypeChoices,
+    SecretsGroupSecretTypeChoices,
+)
+from nautobot.extras.models import (
+    ExternalIntegration,
+    Secret,
+    SecretsGroup,
+    SecretsGroupAssociation,
+    Status,
+)
 
 from nautobot_ssot.integrations.vsphere.choices import PrimaryIpSortByChoices
 from nautobot_ssot.integrations.vsphere.models import SSOTvSphereConfig
 
 
 @mock.patch.dict(
-    os.environ, {"NAUTOBOT_SSOT_VSPHERE_USERNAME": "username", "NAUTOBOT_SSOT_VSPHERE_PASSWORD": "password"}
+    os.environ,
+    {
+        "NAUTOBOT_SSOT_VSPHERE_USERNAME": "username",
+        "NAUTOBOT_SSOT_VSPHERE_PASSWORD": "password",
+    },
 )
 class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-methods
     """Tests for the SSOTvSphereConfig models."""
 
     def setUp(self):
         """Setup testing."""
-        vm_status_map = {"POWERED_OFF": "Offline", "POWERED_ON": "Active", "SUSPENDED": "Suspended"}
+        vm_status_map = {
+            "POWERED_OFF": "Offline",
+            "POWERED_ON": "Active",
+            "SUSPENDED": "Suspended",
+        }
         ip_status_map = {"PREFERRED": "Active", "UNKNOWN": "Reserved"}
-        vm_interface_map = {"NOT_CONNECTED": False, "CONNECTED": True}
 
-        secrets_group, _ = SecretsGroup.objects.get_or_create(name="vSphereSSOTUnitTest")
+        secrets_group, _ = SecretsGroup.objects.get_or_create(
+            name="vSphereSSOTUnitTest"
+        )
         inf_username, _ = Secret.objects.get_or_create(
             name="vSphere Username - vSphereSSOTUnitTest",
             defaults={
@@ -85,7 +104,9 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         )
         vsphere_cfg.validated_save()
 
-        vsphere_cfg_db = SSOTvSphereConfig.objects.get(name="vSphereModelUnitTestConfigReqOnly")
+        vsphere_cfg_db = SSOTvSphereConfig.objects.get(
+            name="vSphereModelUnitTestConfigReqOnly"
+        )
 
         self.assertEqual(vsphere_cfg_db.name, "vSphereModelUnitTestConfigReqOnly")
         self.assertEqual(vsphere_cfg_db.description, "")
@@ -93,11 +114,23 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         self.assertEqual(vsphere_cfg_db.enable_sync_to_nautobot, True)
         self.assertEqual(
             vsphere_cfg_db.default_vm_status_map,
-            {"POWERED_OFF": "Offline", "POWERED_ON": "Active", "SUSPENDED": "Suspended"},
+            {
+                "POWERED_OFF": "Offline",
+                "POWERED_ON": "Active",
+                "SUSPENDED": "Suspended",
+            },
         )
-        self.assertEqual(vsphere_cfg_db.default_ip_status_map, {"PREFERRED": "Active", "UNKNOWN": "Reserved"})
-        self.assertEqual(vsphere_cfg_db.default_vm_interface_map, {"NOT_CONNECTED": False, "CONNECTED": True})
-        self.assertEqual(vsphere_cfg_db.primary_ip_sort_by, PrimaryIpSortByChoices.LOWEST)
+        self.assertEqual(
+            vsphere_cfg_db.default_ip_status_map,
+            {"PREFERRED": "Active", "UNKNOWN": "Reserved"},
+        )
+        self.assertEqual(
+            vsphere_cfg_db.default_vm_interface_map,
+            {"NOT_CONNECTED": False, "CONNECTED": True},
+        )
+        self.assertEqual(
+            vsphere_cfg_db.primary_ip_sort_by, PrimaryIpSortByChoices.LOWEST
+        )
         self.assertEqual(vsphere_cfg_db.default_ignore_link_local, True)
         self.assertEqual(vsphere_cfg_db.job_enabled, False)
 
@@ -109,7 +142,11 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
             description="This is a test.",
             vsphere_instance=self.external_integration,
             enable_sync_to_nautobot=True,
-            default_vm_status_map={"POWERED_OFF": "Offline", "POWERED_ON": "Active", "SUSPENDED": "Suspended"},
+            default_vm_status_map={
+                "POWERED_OFF": "Offline",
+                "POWERED_ON": "Active",
+                "SUSPENDED": "Suspended",
+            },
             default_ip_status_map={"PREFERRED": "Active", "UNKNOWN": "Reserved"},
             default_vm_interface_map={"NOT_CONNECTED": False, "CONNECTED": True},
             primary_ip_sort_by=PrimaryIpSortByChoices.LOWEST,
@@ -118,7 +155,9 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         )
         vsphere_cfg.validated_save()
 
-        vsphere_cfg_db = SSOTvSphereConfig.objects.get(name="vSphereModelUnitTestConfigAllFields")
+        vsphere_cfg_db = SSOTvSphereConfig.objects.get(
+            name="vSphereModelUnitTestConfigAllFields"
+        )
 
         self.assertEqual(vsphere_cfg_db.name, "vSphereModelUnitTestConfigAllFields")
         self.assertEqual(vsphere_cfg_db.description, "This is a test.")
@@ -126,11 +165,23 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         self.assertEqual(vsphere_cfg_db.enable_sync_to_nautobot, True)
         self.assertEqual(
             vsphere_cfg_db.default_vm_status_map,
-            {"POWERED_OFF": "Offline", "POWERED_ON": "Active", "SUSPENDED": "Suspended"},
+            {
+                "POWERED_OFF": "Offline",
+                "POWERED_ON": "Active",
+                "SUSPENDED": "Suspended",
+            },
         )
-        self.assertEqual(vsphere_cfg_db.default_ip_status_map, {"PREFERRED": "Active", "UNKNOWN": "Reserved"})
-        self.assertEqual(vsphere_cfg_db.default_vm_interface_map, {"NOT_CONNECTED": False, "CONNECTED": True})
-        self.assertEqual(vsphere_cfg_db.primary_ip_sort_by, PrimaryIpSortByChoices.LOWEST)
+        self.assertEqual(
+            vsphere_cfg_db.default_ip_status_map,
+            {"PREFERRED": "Active", "UNKNOWN": "Reserved"},
+        )
+        self.assertEqual(
+            vsphere_cfg_db.default_vm_interface_map,
+            {"NOT_CONNECTED": False, "CONNECTED": True},
+        )
+        self.assertEqual(
+            vsphere_cfg_db.primary_ip_sort_by, PrimaryIpSortByChoices.LOWEST
+        )
         self.assertEqual(vsphere_cfg_db.default_ignore_link_local, True)
         self.assertEqual(vsphere_cfg_db.job_enabled, True)
 
@@ -142,39 +193,60 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_vm_status_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "Virtual Machine status map must be a dict.")
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "Virtual Machine status map must be a dict.",
+        )
 
     def test_vsphere_default_vm_status_map_invalid_key_found(self):
         """Only keys allowed in a filter are `POWERED_OFF`, `POWERED_ON` and `SUSPENDED`."""
         vsphere_dict = deepcopy(self.vsphere_config_dict)
-        vsphere_dict["default_vm_status_map"] = {"OFF": "Offline", "ON": "Active", "SUSPENDED": "Suspended"}
+        vsphere_dict["default_vm_status_map"] = {
+            "OFF": "Offline",
+            "ON": "Active",
+            "SUSPENDED": "Suspended",
+        }
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_vm_status_map", failure_exception.exception.error_dict)
-        self.assertIn("Invalid keys found in the VM status map", failure_exception.exception.messages[0])
+        self.assertIn(
+            "Invalid keys found in the VM status map",
+            failure_exception.exception.messages[0],
+        )
 
     def test_vsphere_default_vm_status_map_no_powered_on_key(self):
         """default_vm_status_map filter must have a `POWERED_ON` key defined."""
         vsphere_dict = deepcopy(self.vsphere_config_dict)
-        vsphere_dict["default_vm_status_map"] = {"POWERED_OFF": "Offline", "SUSPENDED": "Suspended"}
+        vsphere_dict["default_vm_status_map"] = {
+            "POWERED_OFF": "Offline",
+            "SUSPENDED": "Suspended",
+        }
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_vm_status_map", failure_exception.exception.error_dict)
         self.assertEqual(
-            failure_exception.exception.messages[0], "Virtual Machine Status map must have 'POWERED_ON' key defined."
+            failure_exception.exception.messages[0],
+            "Virtual Machine Status map must have 'POWERED_ON' key defined.",
         )
 
     def test_vsphere_default_vm_status_map_invalid_type(self):
         """Key `POWERED_ON` must be a string."""
         vsphere_dict = deepcopy(self.vsphere_config_dict)
-        vsphere_dict["default_vm_status_map"] = {"POWERED_OFF": "Offline", "POWERED_ON": 2, "SUSPENDED": "Suspended"}
+        vsphere_dict["default_vm_status_map"] = {
+            "POWERED_OFF": "Offline",
+            "POWERED_ON": 2,
+            "SUSPENDED": "Suspended",
+        }
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_vm_status_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "Value of 'POWERED_ON' must be a string.")
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "Value of 'POWERED_ON' must be a string.",
+        )
 
     def test_vsphere_default_vm_status_map_no_existing_status(self):
         """An existing status must already exist in Nautobot."""
@@ -188,7 +260,10 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_vm_status_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "No existing status found for 'POWERED_OFF'.")
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "No existing status found for 'POWERED_OFF'.",
+        )
 
     def test_vsphere_default_ip_status_map_dict(self):
         """default_ip_status_map must be a dict."""
@@ -198,7 +273,9 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_ip_status_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "IP status map must be a dict.")
+        self.assertEqual(
+            failure_exception.exception.messages[0], "IP status map must be a dict."
+        )
 
     def test_vsphere_default_ip_status_map_invalid_key_found(self):
         """Only keys allowed in a filter are 'PREFFERED' and 'UNKNOWN'."""
@@ -208,7 +285,10 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_ip_status_map", failure_exception.exception.error_dict)
-        self.assertIn("Invalid keys found in the IP status map", failure_exception.exception.messages[0])
+        self.assertIn(
+            "Invalid keys found in the IP status map",
+            failure_exception.exception.messages[0],
+        )
 
     def test_vsphere_default_ip_status_map_no_preferred_key(self):
         """default_ip_status_map filter must have a `PREFFERED` key defined."""
@@ -219,7 +299,10 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_ip_status_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "IP status map must have 'PREFERRED' key defined.")
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "IP status map must have 'PREFERRED' key defined.",
+        )
 
     def test_vsphere_default_ip_status_map_invalid_type(self):
         """Key `PREFERRED` must be a string."""
@@ -230,7 +313,10 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("default_ip_status_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "Value of 'PREFERRED' must be a string.")
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "Value of 'PREFERRED' must be a string.",
+        )
 
     def test_vsphere_default_vm_interface_map_dict(self):
         """default_vm_interface_map must be a dict."""
@@ -239,18 +325,30 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
-        self.assertIn("default_vm_interface_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "Interface map must be a dict.")
+        self.assertIn(
+            "default_vm_interface_map", failure_exception.exception.error_dict
+        )
+        self.assertEqual(
+            failure_exception.exception.messages[0], "Interface map must be a dict."
+        )
 
     def test_vsphere_default_vm_interface_map_invalid_key_found(self):
         """Only keys allowed in a filter are 'CONNECTED' and 'NOT_CONNECTED'."""
         vsphere_dict = deepcopy(self.vsphere_config_dict)
-        vsphere_dict["default_vm_interface_map"] = {"CON": "Offline", "NOT_CON": "Active"}
+        vsphere_dict["default_vm_interface_map"] = {
+            "CON": "Offline",
+            "NOT_CON": "Active",
+        }
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
-        self.assertIn("default_vm_interface_map", failure_exception.exception.error_dict)
-        self.assertIn("Invalid keys found in the Interface map", failure_exception.exception.messages[0])
+        self.assertIn(
+            "default_vm_interface_map", failure_exception.exception.error_dict
+        )
+        self.assertIn(
+            "Invalid keys found in the Interface map",
+            failure_exception.exception.messages[0],
+        )
 
     def test_vsphere_default_vm_interface_map_no_powered_on_key(self):
         """default_vm_interface_map filter must have a `CONNECTED` key defined."""
@@ -259,18 +357,31 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
-        self.assertIn("default_vm_interface_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "Interface map must have 'CONNECTED' key defined.")
+        self.assertIn(
+            "default_vm_interface_map", failure_exception.exception.error_dict
+        )
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "Interface map must have 'CONNECTED' key defined.",
+        )
 
     def test_vsphere_default_vm_interface_map_invalid_type(self):
         """Key `CONNECTED` must be a boolean."""
         vsphere_dict = deepcopy(self.vsphere_config_dict)
-        vsphere_dict["default_vm_interface_map"] = {"CONNECTED": 3, "NOT_CONNECTED": True}
+        vsphere_dict["default_vm_interface_map"] = {
+            "CONNECTED": 3,
+            "NOT_CONNECTED": True,
+        }
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
-        self.assertIn("default_vm_interface_map", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "Value of 'CONNECTED' must be a boolean.")
+        self.assertIn(
+            "default_vm_interface_map", failure_exception.exception.error_dict
+        )
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "Value of 'CONNECTED' must be a boolean.",
+        )
 
     def test_vsphere_instance_must_have_secrets_group(self):
         """External integration for vSphere instance must have secrets group assigned."""
@@ -280,7 +391,10 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
         self.assertIn("vsphere_instance", failure_exception.exception.error_dict)
-        self.assertEqual(failure_exception.exception.messages[0], "vSphere instance must have Secrets groups assigned.")
+        self.assertEqual(
+            failure_exception.exception.messages[0],
+            "vSphere instance must have Secrets groups assigned.",
+        )
 
     def test_vsphere_instance_must_have_secrets_rest_username(self):
         """Secrets associated with secret group used by vSphere Instance must be of correct type."""

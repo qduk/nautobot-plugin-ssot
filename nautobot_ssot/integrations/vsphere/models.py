@@ -1,6 +1,5 @@
 """MOdels implementation for SSOT vSphere."""
 
-import ipaddress
 
 from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
@@ -12,7 +11,10 @@ except ImportError:
     CHARFIELD_MAX_LENGTH = 255
 
 from nautobot.core.models.generics import PrimaryModel
-from nautobot.extras.choices import SecretsGroupAccessTypeChoices, SecretsGroupSecretTypeChoices
+from nautobot.extras.choices import (
+    SecretsGroupAccessTypeChoices,
+    SecretsGroupSecretTypeChoices,
+)
 from nautobot.extras.models import SecretsGroupAssociation
 from nautobot.extras.models.statuses import Status
 
@@ -49,10 +51,16 @@ class SSOTvSphereConfig(PrimaryModel):  # pylint: disable=too-many-ancestors
         help_text="vSphere Instance",
     )
     enable_sync_to_nautobot = models.BooleanField(
-        default=True, verbose_name="Sync to Nautobot", help_text="Enable syncing of data from vSphere to Nautobot."
+        default=True,
+        verbose_name="Sync to Nautobot",
+        help_text="Enable syncing of data from vSphere to Nautobot.",
     )
-    default_vm_status_map = models.JSONField(default=_get_default_vm_status_map, encoder=DjangoJSONEncoder)
-    default_ip_status_map = models.JSONField(default=_get_default_ip_status_map, encoder=DjangoJSONEncoder, blank=True)
+    default_vm_status_map = models.JSONField(
+        default=_get_default_vm_status_map, encoder=DjangoJSONEncoder
+    )
+    default_ip_status_map = models.JSONField(
+        default=_get_default_ip_status_map, encoder=DjangoJSONEncoder, blank=True
+    )
     default_vm_interface_map = models.JSONField(
         default=_get_default_vm_interface_map, encoder=DjangoJSONEncoder, blank=True
     )
@@ -89,80 +97,118 @@ class SSOTvSphereConfig(PrimaryModel):  # pylint: disable=too-many-ancestors
         allowed_keys = {"POWERED_OFF", "POWERED_ON", "SUSPENDED"}
 
         if not isinstance(self.default_vm_status_map, dict):
-            raise ValidationError({"default_vm_status_map": "Virtual Machine status map must be a dict."})
+            raise ValidationError(
+                {"default_vm_status_map": "Virtual Machine status map must be a dict."}
+            )
 
         invalid_keys = set(self.default_vm_status_map.keys()) - allowed_keys
         if invalid_keys:
             raise ValidationError(
-                {"default_vm_status_map": f"Invalid keys found in the VM status map: {', '.join(invalid_keys)}."}
+                {
+                    "default_vm_status_map": f"Invalid keys found in the VM status map: {', '.join(invalid_keys)}."
+                }
             )
 
         for key in allowed_keys:
             if key not in self.default_vm_status_map:
                 raise ValidationError(
-                    {"default_vm_status_map": f"Virtual Machine Status map must have '{key}' key defined."}
+                    {
+                        "default_vm_status_map": f"Virtual Machine Status map must have '{key}' key defined."
+                    }
                 )
 
             value = self.default_vm_status_map[key]
             if not isinstance(value, str):
-                raise ValidationError({"default_vm_status_map": f"Value of '{key}' must be a string."})
+                raise ValidationError(
+                    {"default_vm_status_map": f"Value of '{key}' must be a string."}
+                )
 
             try:
                 Status.objects.get(name=value)
             except Status.DoesNotExist:
-                raise ValidationError({"default_vm_status_map": f"No existing status found for '{value}'."})
+                raise ValidationError(  # pylint: disable=raise-missing-from
+                    {
+                        "default_vm_status_map": f"No existing status found for '{value}'."
+                    }
+                )
 
     def _clean_default_ip_status_map(self):
         """Perform validation of the default_ip_status_map field."""
         allowed_keys = {"PREFERRED", "UNKNOWN"}
 
         if not isinstance(self.default_ip_status_map, dict):
-            raise ValidationError({"default_ip_status_map": "IP status map must be a dict."})
+            raise ValidationError(
+                {"default_ip_status_map": "IP status map must be a dict."}
+            )
 
         invalid_keys = set(self.default_ip_status_map.keys()) - allowed_keys
         if invalid_keys:
             raise ValidationError(
-                {"default_ip_status_map": f"Invalid keys found in the IP status map: {', '.join(invalid_keys)}."}
+                {
+                    "default_ip_status_map": f"Invalid keys found in the IP status map: {', '.join(invalid_keys)}."
+                }
             )
 
         for key in allowed_keys:
             if key not in self.default_ip_status_map:
-                raise ValidationError({"default_ip_status_map": f"IP status map must have '{key}' key defined."})
+                raise ValidationError(
+                    {
+                        "default_ip_status_map": f"IP status map must have '{key}' key defined."
+                    }
+                )
 
             value = self.default_ip_status_map[key]
             if not isinstance(value, str):
-                raise ValidationError({"default_ip_status_map": f"Value of '{key}' must be a string."})
+                raise ValidationError(
+                    {"default_ip_status_map": f"Value of '{key}' must be a string."}
+                )
 
             try:
                 Status.objects.get(name=value)
             except Status.DoesNotExist:
-                raise ValidationError({"default_ip_status_map": f"No existing status found for {value}."})
+                raise ValidationError(  # pylint: disable=raise-missing-from
+                    {"default_ip_status_map": f"No existing status found for {value}."}
+                )
 
     def _clean_default_vm_interface_map(self):
         """Perform validation of the default_vm_interface_map field."""
         allowed_keys = {"CONNECTED", "NOT_CONNECTED"}
 
         if not isinstance(self.default_vm_interface_map, dict):
-            raise ValidationError({"default_vm_interface_map": "Interface map must be a dict."})
+            raise ValidationError(
+                {"default_vm_interface_map": "Interface map must be a dict."}
+            )
 
         invalid_keys = set(self.default_vm_interface_map.keys()) - allowed_keys
         if invalid_keys:
             raise ValidationError(
-                {"default_vm_interface_map": f"Invalid keys found in the Interface map: {', '.join(invalid_keys)}."}
+                {
+                    "default_vm_interface_map": f"Invalid keys found in the Interface map: {', '.join(invalid_keys)}."
+                }
             )
 
         for key in allowed_keys:
             if key not in self.default_vm_interface_map:
-                raise ValidationError({"default_vm_interface_map": f"Interface map must have '{key}' key defined."})
+                raise ValidationError(
+                    {
+                        "default_vm_interface_map": f"Interface map must have '{key}' key defined."
+                    }
+                )
 
             value = self.default_vm_interface_map[key]
             if not isinstance(value, bool):
-                raise ValidationError({"default_vm_interface_map": f"Value of '{key}' must be a boolean."})
+                raise ValidationError(
+                    {"default_vm_interface_map": f"Value of '{key}' must be a boolean."}
+                )
 
     def _clean_vsphere_instance(self):
         """Performs validation of the vsphere_instance field."""
         if not self.vsphere_instance.secrets_group:
-            raise ValidationError({"vsphere_instance": "vSphere instance must have Secrets groups assigned."})
+            raise ValidationError(
+                {
+                    "vsphere_instance": "vSphere instance must have Secrets groups assigned."
+                }
+            )
         try:
             self.vsphere_instance.secrets_group.get_secret_value(
                 access_type=SecretsGroupAccessTypeChoices.TYPE_REST,

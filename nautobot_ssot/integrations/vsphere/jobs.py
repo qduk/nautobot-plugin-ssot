@@ -4,16 +4,17 @@
 #  pylint: disable=abstract-method
 
 """Job for vSphere integration with SSoT app."""
+
 from django.templatetags.static import static
 from django.urls import reverse
-from nautobot.extras.jobs import BooleanVar
 from nautobot.core.forms import DynamicModelChoiceField
+from nautobot.extras.jobs import BooleanVar
 from nautobot.virtualization.models import Cluster
-from nautobot_ssot.jobs.base import DataMapping, DataSource
 
 from nautobot_ssot.integrations.vsphere import defaults
 from nautobot_ssot.integrations.vsphere.diffsync.adapters import Adapter, VsphereDiffSync
 from nautobot_ssot.integrations.vsphere.utilities import VsphereClient
+from nautobot_ssot.jobs.base import DataMapping, DataSource
 
 name = "SSoT - Virtualization"  # pylint: disable=invalid-name
 
@@ -139,9 +140,7 @@ class VspherecDataSource(DataSource):  # pylint: disable=too-many-instance-attri
         self.logger.info(message="Loading current data from Nautobot...")
         self.target_adapter.load()
 
-    def run(
-        self, dryrun, debug, memory_profiling, sync_vsphere_tagged_only, cluster_filter=None, *args, **kwargs
-    ):  # pylint: disable=arguments-differ, too-many-arguments
+    def run(self, dryrun, debug, memory_profiling, sync_vsphere_tagged_only, cluster_filter=None, *args, **kwargs):  # pylint: disable=arguments-differ, too-many-arguments
         """Run sync."""
         self.dryrun = dryrun
         self.debug = debug

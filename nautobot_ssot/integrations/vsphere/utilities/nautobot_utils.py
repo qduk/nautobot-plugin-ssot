@@ -1,12 +1,13 @@
 # pylint: disable=duplicate-code
 """Nautobot Utils."""
+
 import datetime
 from typing import Any
 
 from django.contrib.contenttypes.models import ContentType
+from nautobot.core.choices import ColorChoices
 from nautobot.extras.choices import CustomFieldTypeChoices
 from nautobot.extras.models import CustomField, Tag
-from nautobot.core.choices import ColorChoices
 from nautobot.virtualization.models import (
     Cluster,
     ClusterGroup,

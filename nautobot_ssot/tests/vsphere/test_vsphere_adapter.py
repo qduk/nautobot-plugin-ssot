@@ -1,12 +1,12 @@
 """Unit tests for the vSphere Diffsync adapter class."""
 
-import unittest
 import os
+import unittest
 
-from nautobot_ssot.integrations.vsphere.diffsync.adapters.adapter_vsphere import VsphereDiffSync
 from nautobot_ssot.integrations.vsphere import defaults
-from .vsphere_fixtures import json_fixture, real_path
+from nautobot_ssot.integrations.vsphere.diffsync.adapters.adapter_vsphere import VsphereDiffSync
 
+from .vsphere_fixtures import json_fixture, real_path
 
 FIXTURES = os.environ.get("FIXTURE_DIR", real_path)
 

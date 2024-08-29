@@ -5,19 +5,19 @@
 import ipaddress
 from typing import List
 
-from diffsync import DiffSync
+from diffsync import Adapter
 from netutils.ip import cidr_to_netmask
+
 from nautobot_ssot.integrations.vsphere import defaults
-from nautobot_ssot.integrations.vsphere.utilities.vsphere_client import VsphereClient
 from nautobot_ssot.integrations.vsphere.diffsync.models.vsphere import (
-    VirtualMachineModel,
-    ClusterModel,
     ClusterGroupModel,
-    VMInterfaceModel,
+    ClusterModel,
     IPAddressModel,
     PrefixModel,
-    # IPAddressToInterfaceModel,
+    VirtualMachineModel,
+    VMInterfaceModel,
 )
+from nautobot_ssot.integrations.vsphere.utilities.vsphere_client import VsphereClient
 
 
 def deduce_network_from_ip(ip: ipaddress.IPv4Address, subnet_mask: str):
@@ -51,7 +51,7 @@ def get_disk_total(disks: List):
     return int(total / 1024.0**3)
 
 
-class VsphereDiffSync(DiffSync):
+class VsphereDiffSync(Adapter):
     """vSphere adapter for DiffSync."""
 
     clustergroup = ClusterGroupModel
@@ -197,7 +197,10 @@ class VsphereDiffSync(DiffSync):
             nic_mac = nic["value"]["mac_address"].lower()
             diffsync_vminterface, _ = self.get_or_instantiate(
                 self.interface,
-                {"name": nic["value"]["label"], "virtual_machine__name": diffsync_virtualmachine.name},
+                {
+                    "name": nic["value"]["label"],
+                    "virtual_machine__name": diffsync_virtualmachine.name,
+                },
                 {
                     "enabled": defaults.VSPHERE_VM_INTERFACE_MAP[nic["value"]["state"]],
                     "status__name": "Active",

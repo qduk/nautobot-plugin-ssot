@@ -8,10 +8,10 @@ from unittest.mock import patch
 import requests
 import responses
 from requests import Session
+
 from nautobot_ssot.integrations.vsphere.utilities.vsphere_client import VsphereClient
 
 from .vsphere_fixtures import json_fixture, real_path
-
 
 FIXTURES = os.environ.get("FIXTURE_DIR", real_path)
 

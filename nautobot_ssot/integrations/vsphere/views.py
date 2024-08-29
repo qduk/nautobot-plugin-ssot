@@ -1,12 +1,12 @@
 """Views implementation for SSOT vSphere."""
-
-from nautobot.extras.views import ObjectChangeLogView, ObjectNotesView
+# pylint: disable=duplicate-code
 from nautobot.apps.views import (
     ObjectDestroyViewMixin,
     ObjectDetailViewMixin,
     ObjectEditViewMixin,
     ObjectListViewMixin,
 )
+from nautobot.extras.views import ObjectChangeLogView, ObjectNotesView
 
 from .api.serializers import SSOTvSphereConfigSerializer
 from .filters import SSOTvSphereConfigFilterSet
@@ -16,7 +16,10 @@ from .tables import SSOTvSphereConfigTable
 
 
 class SSOTvSphereConfigUIViewSet(
-    ObjectDestroyViewMixin, ObjectDetailViewMixin, ObjectListViewMixin, ObjectEditViewMixin
+    ObjectDestroyViewMixin,
+    ObjectDetailViewMixin,
+    ObjectListViewMixin,
+    ObjectEditViewMixin,
 ):  # pylint: disable=abstract-method
     """SSOTvSphereConfig UI ViewSet."""
 

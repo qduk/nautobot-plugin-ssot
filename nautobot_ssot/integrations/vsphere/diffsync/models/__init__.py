@@ -1,6 +1,6 @@
 """Collection of adapters."""
 
-from .vsphere import IPAddressModel, VMInterfaceModel, VirtualMachineModel, ClusterModel, ClusterGroupModel, PrefixModel
+from .vsphere import ClusterGroupModel, ClusterModel, IPAddressModel, PrefixModel, VirtualMachineModel, VMInterfaceModel
 
 __all__ = (
     "IPAddressModel",

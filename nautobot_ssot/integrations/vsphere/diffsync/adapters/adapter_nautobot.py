@@ -3,16 +3,16 @@
 from typing import Any, Dict, List
 
 from diffsync.enum import DiffSyncFlags
-
-from nautobot.virtualization.models import VirtualMachine
 from nautobot.ipam.models import IPAddress
+from nautobot.virtualization.models import VirtualMachine
+
 from nautobot_ssot.contrib import NautobotAdapter
 from nautobot_ssot.integrations.vsphere.diffsync.models.vsphere import (
-    VirtualMachineModel,
-    ClusterModel,
     ClusterGroupModel,
-    VMInterfaceModel,
+    ClusterModel,
     IPAddressModel,
+    VirtualMachineModel,
+    VMInterfaceModel,
 )
 
 

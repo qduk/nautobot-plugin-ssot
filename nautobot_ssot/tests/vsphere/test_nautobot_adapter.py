@@ -1,11 +1,12 @@
 """Nautobot Adapter Tests"""
 
 from unittest.mock import MagicMock
-from django.test import TestCase
 
+from django.test import TestCase
 from nautobot.extras.models.statuses import Status
 from nautobot.extras.models.tags import Tag
-from nautobot.virtualization.models import Cluster, ClusterType, ClusterGroup, VirtualMachine, VMInterface
+from nautobot.virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+
 from nautobot_ssot.integrations.vsphere.diffsync.adapters.adapter_nautobot import Adapter
 from nautobot_ssot.integrations.vsphere.diffsync.models.vsphere import (
     ClusterGroupModel,

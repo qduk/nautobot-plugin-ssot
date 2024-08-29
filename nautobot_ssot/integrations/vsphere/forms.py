@@ -1,12 +1,11 @@
 """Forms implementation for SSOT vSphere."""
 
 from django import forms
+from nautobot.apps.forms import JSONField, StaticSelect2
+from nautobot.extras.forms import NautobotFilterForm, NautobotModelForm
 
-from nautobot.extras.forms import NautobotModelForm, NautobotFilterForm
-from nautobot.apps.forms import add_blank_choice, JSONField, StaticSelect2, StaticSelect2Multiple
-
-from .models import SSOTvSphereConfig
 from .choices import PrimaryIpSortByChoices
+from .models import SSOTvSphereConfig
 
 
 class SSOTvSphereConfigForm(NautobotModelForm):  # pylint: disable=too-many-ancestors
@@ -41,7 +40,9 @@ class SSOTvSphereConfigForm(NautobotModelForm):  # pylint: disable=too-many-ance
         fields = "__all__"
 
 
-class SSOTvSphereConfigFilterForm(NautobotFilterForm):
+class SSOTvSphereConfigFilterForm(
+    NautobotFilterForm
+):  # pylint: disable=too-many-ancestors
     """Filter form for SSOTInfobloxConfig filter searches."""
 
     model = SSOTvSphereConfig

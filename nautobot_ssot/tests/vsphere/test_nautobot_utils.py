@@ -2,8 +2,8 @@
 
 import unittest
 
-from nautobot.extras.models.tags import Tag
 from nautobot.extras.models.statuses import Status
+from nautobot.extras.models.tags import Tag
 from nautobot.virtualization.models import Cluster, ClusterType, VirtualMachine
 
 from nautobot_ssot.integrations.vsphere.utilities.nautobot_utils import create_ssot_tag, tag_object

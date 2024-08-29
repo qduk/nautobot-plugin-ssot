@@ -1,13 +1,16 @@
 """Nautobot Object Fixtures."""
 
-from django.utils.text import slugify
 from django.contrib.contenttypes.models import ContentType
+from django.utils.text import slugify
 from nautobot.dcim.models import Location, LocationType
-from nautobot.extras.models import Status
+from nautobot.extras.models import Role, Status
 from nautobot.tenancy.models import Tenant
-from nautobot.virtualization.models import Cluster  # VMInterface,
-from nautobot.virtualization.models import ClusterGroup, ClusterType, VirtualMachine
-from nautobot.extras.models import Role
+from nautobot.virtualization.models import (
+    Cluster,  # VMInterface,
+    ClusterGroup,
+    ClusterType,
+    VirtualMachine,
+)
 
 
 def create_cluster_group(name: str = "Development Cluster Group"):

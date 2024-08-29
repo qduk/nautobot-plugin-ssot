@@ -1,9 +1,16 @@
 """vSphere SSoT DiffSync models."""
 
-from typing import List, Optional, TypedDict
+from typing import List, Optional
 
-from nautobot.virtualization.models import Cluster, ClusterGroup, VMInterface, VirtualMachine
-from nautobot.ipam.models import IPAddress, Prefix, IPAddressToInterface
+from nautobot.ipam.models import IPAddress, Prefix
+from nautobot.virtualization.models import (
+    Cluster,
+    ClusterGroup,
+    VirtualMachine,
+    VMInterface,
+)
+from typing_extensions import TypedDict
+
 from nautobot_ssot.contrib import NautobotModel
 
 
@@ -67,7 +74,7 @@ class VMInterfaceModel(NautobotModel):
     virtual_machine__name: str
     enabled: bool
     status__name: str
-    mac_address: Optional[str]
+    mac_address: Optional[str] = None
     ip_addresses: List[IPAddress] = []
 
 
@@ -77,14 +84,22 @@ class VirtualMachineModel(NautobotModel):
     _model = VirtualMachine
     _modelname = "virtual_machine"
     _identifiers = ("name",)
-    _attributes = ("status__name", "vcpus", "memory", "disk", "cluster__name", "primary_ip4__host", "primary_ip6__host")
+    _attributes = (
+        "status__name",
+        "vcpus",
+        "memory",
+        "disk",
+        "cluster__name",
+        "primary_ip4__host",
+        "primary_ip6__host",
+    )
     _children = {"interface": "interfaces"}
 
     name: str
     status__name: str
-    vcpus: Optional[int]
-    memory: Optional[int]
-    disk: Optional[int]
+    vcpus: Optional[int] = None
+    memory: Optional[int] = None
+    disk: Optional[int] = None
     cluster__name: str
     primary_ip4__host: Optional[str]
     primary_ip6__host: Optional[str]
@@ -92,7 +107,7 @@ class VirtualMachineModel(NautobotModel):
     interfaces: List[VMInterface] = []
 
     @classmethod
-    def create(cls, diffsync, ids, attrs):
+    def create(cls, adapter, ids, attrs):
         """Create the device.
 
         This overridden method removes the primary IP addresses since those
@@ -109,14 +124,14 @@ class VirtualMachineModel(NautobotModel):
             DeviceModel: The device model.
         """
         if attrs["primary_ip4__host"] or attrs["primary_ip6__host"]:
-            diffsync._primary_ips.append(
+            adapter._primary_ips.append(
                 {
                     "device": {**ids},
                     "primary_ip4": attrs.pop("primary_ip4__host", None),
                     "primary_ip6": attrs.pop("primary_ip4__host", None),
                 }
             )
-        return super().create(diffsync, ids, attrs)
+        return super().create(adapter, ids, attrs)
 
 
 class ClusterModel(NautobotModel):
@@ -133,7 +148,7 @@ class ClusterModel(NautobotModel):
 
     name: str
     cluster_type__name: str
-    cluster_group__name: Optional[str]
+    cluster_group__name: Optional[str] = None
 
     virtual_machines: List[VirtualMachineModel] = list()
 
@@ -148,4 +163,4 @@ class ClusterGroupModel(NautobotModel):
     _children = {"cluster": "clusters"}
 
     name: str
-    clusters: Optional[List[ClusterModel]] = []
+    clusters: Optional[List[ClusterModel]] = list()
