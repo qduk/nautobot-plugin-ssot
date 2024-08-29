@@ -101,8 +101,8 @@ class VirtualMachineModel(NautobotModel):
     memory: Optional[int] = None
     disk: Optional[int] = None
     cluster__name: str
-    primary_ip4__host: Optional[str]
-    primary_ip6__host: Optional[str]
+    primary_ip4__host: Optional[str] = None
+    primary_ip6__host: Optional[str] = None
 
     interfaces: List[VMInterface] = []
 

@@ -15,9 +15,18 @@ This will return a loaded json object.
 
 import os
 
-from .nautobot_fixtures import localhost_client_vsphere, LOCALHOST
+from .nautobot_fixtures import (
+    localhost_client_vsphere,
+    LOCALHOST,
+    create_default_vsphere_config,
+)
 from .utilities import json_fixture
 
-__all__ = ("json_fixture", "localhost_client_vsphere", "LOCALHOST")
+__all__ = (
+    "json_fixture",
+    "localhost_client_vsphere",
+    "LOCALHOST",
+    "create_default_vsphere_config",
+)
 
 real_path = os.path.dirname(os.path.realpath(__file__))

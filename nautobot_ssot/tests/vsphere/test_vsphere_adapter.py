@@ -4,9 +4,11 @@ import os
 import unittest
 
 from nautobot_ssot.integrations.vsphere import defaults
-from nautobot_ssot.integrations.vsphere.diffsync.adapters.adapter_vsphere import VsphereDiffSync
+from nautobot_ssot.integrations.vsphere.diffsync.adapters.adapter_vsphere import (
+    VsphereDiffSync,
+)
 
-from .vsphere_fixtures import json_fixture, real_path
+from .vsphere_fixtures import json_fixture, real_path, create_default_vsphere_config
 
 FIXTURES = os.environ.get("FIXTURE_DIR", real_path)
 
@@ -15,16 +17,24 @@ class TestVsphereAdapter(unittest.TestCase):
     """Test cases for vSphereAdapter."""
 
     def setUp(self):
+        self.config = create_default_vsphere_config()
         with unittest.mock.patch(
-            "nautobot_ssot.integrations.vsphere.utilities.vsphere_client.VsphereClient", autospec=True
+            "nautobot_ssot.integrations.vsphere.utilities.vsphere_client.VsphereClient",
+            autospec=True,
         ) as mock_client:
             self.vsphere_adapter = VsphereDiffSync(
-                job=unittest.mock.Mock(), sync=unittest.mock.Mock(), client=mock_client, cluster_filter=None
+                job=unittest.mock.Mock(),
+                sync=unittest.mock.Mock(),
+                client=mock_client,
+                config=self.config,
+                cluster_filter=None,
             )
 
     def test_load_clustergroups(self):
         mock_response = unittest.mock.MagicMock()
-        mock_response.json.return_value = json_fixture(f"{FIXTURES}/get_datacenters.json")
+        mock_response.json.return_value = json_fixture(
+            f"{FIXTURES}/get_datacenters.json"
+        )
         self.vsphere_adapter.client.get_datacenters.return_value = mock_response
         self.vsphere_adapter.load_cluster_groups()
         clustergroup = self.vsphere_adapter.get("clustergroup", "CrunchyDatacenter")
@@ -32,13 +42,21 @@ class TestVsphereAdapter(unittest.TestCase):
 
     def test_load_clusters(self):
         mock_response_clustergroup = unittest.mock.MagicMock()
-        mock_response_clustergroup.return_value = json_fixture(f"{FIXTURES}/get_datacenters.json")["value"]
+        mock_response_clustergroup.return_value = json_fixture(
+            f"{FIXTURES}/get_datacenters.json"
+        )["value"]
         self.vsphere_adapter.load_cluster_groups = mock_response_clustergroup
-        self.vsphere_adapter.get_or_instantiate(self.vsphere_adapter.clustergroup, {"name": "CrunchyDatacenter"})
+        self.vsphere_adapter.get_or_instantiate(
+            self.vsphere_adapter.clustergroup, {"name": "CrunchyDatacenter"}
+        )
 
         mock_response_clusters = unittest.mock.MagicMock()
-        mock_response_clusters.json.return_value = json_fixture(f"{FIXTURES}/get_clusters.json")
-        self.vsphere_adapter.client.get_clusters_from_dc.return_value = mock_response_clusters
+        mock_response_clusters.json.return_value = json_fixture(
+            f"{FIXTURES}/get_clusters.json"
+        )
+        self.vsphere_adapter.client.get_clusters_from_dc.return_value = (
+            mock_response_clusters
+        )
         self.vsphere_adapter.load_data()
 
         cluster = self.vsphere_adapter.get("cluster", "HeshLawCluster")
@@ -48,15 +66,21 @@ class TestVsphereAdapter(unittest.TestCase):
 
     def test_load_virtualmachines(self):
         mock_response_cluster = unittest.mock.MagicMock()
-        mock_response_cluster.json.return_value = json_fixture(f"{FIXTURES}/get_vms_from_cluster.json")
-        self.vsphere_adapter.client.get_vms_from_cluster.return_value = mock_response_cluster
+        mock_response_cluster.json.return_value = json_fixture(
+            f"{FIXTURES}/get_vms_from_cluster.json"
+        )
+        self.vsphere_adapter.client.get_vms_from_cluster.return_value = (
+            mock_response_cluster
+        )
 
         mock_response_vm_details = unittest.mock.MagicMock()
         mock_response_vm_details.json.side_effect = [
             json_fixture(f"{FIXTURES}/vm_details_vsphere.json"),
             json_fixture(f"{FIXTURES}/vm_details_nautobot.json"),
         ]
-        self.vsphere_adapter.client.get_vm_details.return_value = mock_response_vm_details
+        self.vsphere_adapter.client.get_vm_details.return_value = (
+            mock_response_vm_details
+        )
 
         mock_response_get_vm_interfaces = unittest.mock.MagicMock()
         mock_response_get_vm_interfaces.json.side_effect = [
@@ -64,13 +88,18 @@ class TestVsphereAdapter(unittest.TestCase):
             json_fixture(f"{FIXTURES}/get_vm_interfaces_1.json"),
         ]
 
-        self.vsphere_adapter.client.get_vm_interfaces.return_value = mock_response_get_vm_interfaces
+        self.vsphere_adapter.client.get_vm_interfaces.return_value = (
+            mock_response_get_vm_interfaces
+        )
 
         cluster_json_info = json_fixture(f"{FIXTURES}/get_clusters.json")["value"][0]
         cluster, _ = self.vsphere_adapter.get_or_instantiate(
             self.vsphere_adapter.cluster,
             {"name": "HeshLawCluster"},
-            {"cluster_type__name": defaults.DEFAULT_VSPHERE_TYPE, "cluster_group__name": "CrunchyDatacenter"},
+            {
+                "cluster_type__name": defaults.DEFAULT_VSPHERE_TYPE,
+                "cluster_group__name": "CrunchyDatacenter",
+            },
         )
         diffsync_cluster = self.vsphere_adapter.get("cluster", "HeshLawCluster")
 
@@ -102,29 +131,47 @@ class TestVsphereAdapter(unittest.TestCase):
         diffsync_vm, _ = self.vsphere_adapter.get_or_instantiate(
             self.vsphere_adapter.virtual_machine,
             {"name": "Nautobot"},
-            {"vcpus": 10, "memory": 49152, "disk": 64, "status__name": "Active", "cluster__name": "HeshLawCluster"},
+            {
+                "vcpus": 10,
+                "memory": 49152,
+                "disk": 64,
+                "status__name": "Active",
+                "cluster__name": "HeshLawCluster",
+            },
         )
 
         self.vsphere_adapter.load_vm_interfaces(
-            vsphere_virtual_machine=vm_detail_json, vm_id="vm-1015", diffsync_virtualmachine=diffsync_vm
+            vsphere_virtual_machine=vm_detail_json,
+            vm_id="vm-1015",
+            diffsync_virtualmachine=diffsync_vm,
         )
-        vm_interface = self.vsphere_adapter.get("interface", "Network adapter 1__Nautobot")
+        vm_interface = self.vsphere_adapter.get(
+            "interface", "Network adapter 1__Nautobot"
+        )
         self.assertEqual(vm_interface.name, "Network adapter 1")
         self.assertEqual(vm_interface.virtual_machine__name, "Nautobot")
         self.assertEqual(vm_interface.enabled, False)
-        self.assertEqual(vm_interface.mac_address, "00:50:56:b5:e5:5e")
+        self.assertEqual(vm_interface.mac_address, "00:50:56:b5:e5:55")
         self.assertIn("Network adapter 1__Nautobot", diffsync_vm.interfaces)
 
     def test_load_ip_addresses(self):
         mock_interfaces = unittest.mock.MagicMock()
-        mock_interfaces.json.return_value = json_fixture(f"{FIXTURES}/get_vm_interfaces.json")
+        mock_interfaces.json.return_value = json_fixture(
+            f"{FIXTURES}/get_vm_interfaces.json"
+        )
         diffsync_vminterface, _ = self.vsphere_adapter.get_or_instantiate(
             self.vsphere_adapter.interface,
             {"name": "Network adapter 1", "virtual_machine__name": "Nautobot"},
-            {"enabled": False, "mac_address": "00:50:56:b5:e5:5e", "status__name": "Active"},
+            {
+                "enabled": False,
+                "mac_address": "00:50:56:b5:e5:5f",
+                "status__name": "Active",
+            },
         )
 
-        self.vsphere_adapter.load_ip_addresses(mock_interfaces, "00:0c:29:48:fa:fe", diffsync_vminterface)
+        self.vsphere_adapter.load_ip_addresses(
+            mock_interfaces.json()["value"], "00:50:56:b5:e5:5f", diffsync_vminterface
+        )
         vm_ip = self.vsphere_adapter.get("ip_address", "192.168.2.88__23__Active")
         self.assertEqual(vm_ip.host, "192.168.2.88")
         self.assertEqual(vm_ip.mask_length, 23)
