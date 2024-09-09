@@ -10,7 +10,6 @@ import responses
 from requests import Session
 
 from nautobot_ssot.integrations.vsphere.utilities.vsphere_client import (
-    VsphereClient,
     InvalidUrlScheme,
 )
 

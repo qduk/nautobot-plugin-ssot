@@ -62,8 +62,10 @@ class VsphereDiffSync(Adapter):
     # ip_address_to_interface = IPAddressToInterfaceModel
     prefix = PrefixModel
 
+    top_level = ["prefix", "clustergroup"]
+
     def __init__(
-        self, job, sync, client: VsphereClient, config, cluster_filter, *args, **kwargs
+        self, *args, job=None, sync=None, client, config, cluster_filter, **kwargs
     ):
         """Initialize the vSphereDiffSync."""
         super().__init__(*args, **kwargs)
