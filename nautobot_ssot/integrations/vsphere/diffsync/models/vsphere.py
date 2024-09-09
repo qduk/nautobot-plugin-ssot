@@ -35,18 +35,6 @@ class PrefixModel(NautobotModel):
     type: str
 
 
-# class IPAddressToInterfaceModel(NautobotModel):
-#     """Diffsync model for assigning IP Addresses to interfaces."""
-
-#     _model = IPAddressToInterface
-#     _modelname = "ip_address_to_interface"
-#     _identifiers = {"ip_address__host", "vm_interface__name"}
-#     _attributes = tuple()
-
-#     ip_address__host: str
-#     vm_interface__name: str
-
-
 class IPAddressModel(NautobotModel):
     """IPAddress Diffsync model."""
 

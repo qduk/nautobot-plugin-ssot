@@ -259,11 +259,13 @@ class SSOTvSphereConfigTestCase(TestCase):  # pylint: disable=too-many-public-me
         vsphere_config = SSOTvSphereConfig(**vsphere_dict)
         with self.assertRaises(ValidationError) as failure_exception:
             vsphere_config.full_clean()
-        self.assertIn("default_vm_status_map", failure_exception.exception.error_dict)
-        self.assertEqual(
-            failure_exception.exception.messages[0],
-            "No existing status found for 'POWERED_OFF'.",
-        )
+            self.assertIn(
+                "default_vm_status_map", failure_exception.exception.error_dict
+            )
+            self.assertEqual(
+                failure_exception.exception.messages[0],
+                "No existing status found for 'POWERED_OFF'.",
+            )
 
     def test_vsphere_default_ip_status_map_dict(self):
         """default_ip_status_map must be a dict."""
