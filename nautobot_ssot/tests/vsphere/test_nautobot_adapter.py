@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from django.test import TestCase
 from nautobot.extras.models.statuses import Status
 from nautobot.extras.models.tags import Tag
+from nautobot.ipam.models import IPAddress, Namespace, Prefix
 from nautobot.virtualization.models import (
     Cluster,
     ClusterGroup,
@@ -16,13 +17,13 @@ from nautobot.virtualization.models import (
 from nautobot_ssot.integrations.vsphere.diffsync.adapters.adapter_nautobot import (
     Adapter,
 )
-from nautobot.ipam.models import IPAddress, Namespace, Prefix
 from nautobot_ssot.integrations.vsphere.diffsync.models.vsphere import (
     ClusterGroupModel,
     ClusterModel,
     VirtualMachineModel,
     VMInterfaceModel,
 )
+
 from .vsphere_fixtures import create_default_vsphere_config
 
 
@@ -31,19 +32,14 @@ class TestNautobotAdapter(TestCase):
 
     def setUp(self):
         test_cluster_type, _ = ClusterType.objects.get_or_create(name="Test")
-        self.test_cluster_group, _ = ClusterGroup.objects.get_or_create(
-            name="Test Group"
-        )
+        self.test_cluster_group, _ = ClusterGroup.objects.get_or_create(name="Test Group")
         self.test_cluster, _ = Cluster.objects.get_or_create(
             name="Test Cluster",
             cluster_type=test_cluster_type,
             cluster_group=self.test_cluster_group,
         )
         self.status, _ = Status.objects.get_or_create(name="Active")
-        self.tags = [
-            Tag.objects.create(name=tag_name)
-            for tag_name in ["Tag Test 1", "Tag Test 2", "Tag Test 3"]
-        ]
+        self.tags = [Tag.objects.create(name=tag_name) for tag_name in ["Tag Test 1", "Tag Test 2", "Tag Test 3"]]
         self.test_virtualmachine, _ = VirtualMachine.objects.get_or_create(
             name="Test VM",
             cluster=self.test_cluster,
@@ -68,9 +64,7 @@ class TestNautobotAdapter(TestCase):
             status=self.status,
             type="network",
         )
-        self.vm_ip, _ = IPAddress.objects.get_or_create(
-            host="192.168.1.1", mask_length=24, status=self.status
-        )
+        self.vm_ip, _ = IPAddress.objects.get_or_create(host="192.168.1.1", mask_length=24, status=self.status)
         self.vm_ip.vm_interfaces.set([self.vm_interface_1])
 
     def test_load(self):

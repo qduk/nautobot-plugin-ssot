@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('nautobot_ssot', '0011_ssotvsphereconfig'),
+        ("nautobot_ssot", "0011_ssotvsphereconfig"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ssotvsphereconfig',
-            name='primary_ip_sort_by',
-            field=models.CharField(default='Lowest', max_length=255),
+            model_name="ssotvsphereconfig",
+            name="primary_ip_sort_by",
+            field=models.CharField(default="Lowest", max_length=255),
         ),
     ]

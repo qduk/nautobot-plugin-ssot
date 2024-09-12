@@ -1,4 +1,5 @@
 """Views implementation for SSOT vSphere."""
+
 # pylint: disable=duplicate-code
 from nautobot.apps.views import (
     ObjectDestroyViewMixin,

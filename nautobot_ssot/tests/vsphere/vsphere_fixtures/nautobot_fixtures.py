@@ -1,31 +1,21 @@
 """Nautobot Object Fixtures."""
+
 import os
-from django.contrib.contenttypes.models import ContentType
-from django.utils.text import slugify
-from nautobot.dcim.models import Location, LocationType
-from nautobot.extras.models import (
-    ExternalIntegration,
-    Relationship,
-    Secret,
-    SecretsGroup,
-    SecretsGroupAssociation,
-    Status,
-)
-from nautobot.tenancy.models import Tenant
-from nautobot.virtualization.models import (
-    Cluster,  # VMInterface,
-    ClusterGroup,
-    ClusterType,
-    VirtualMachine,
-)
+
 from nautobot.extras.choices import (
-    RelationshipTypeChoices,
     SecretsGroupAccessTypeChoices,
     SecretsGroupSecretTypeChoices,
 )
-from nautobot_ssot.integrations.vsphere.utilities import VsphereClient
-from nautobot_ssot.integrations.vsphere.models import SSOTvSphereConfig
+from nautobot.extras.models import (
+    ExternalIntegration,
+    Secret,
+    SecretsGroup,
+    SecretsGroupAssociation,
+)
+
 from nautobot_ssot.integrations.vsphere.choices import PrimaryIpSortByChoices
+from nautobot_ssot.integrations.vsphere.models import SSOTvSphereConfig
+from nautobot_ssot.integrations.vsphere.utilities import VsphereClient
 
 LOCALHOST = os.environ.get("TEST_LOCALHOST_URL", "https://vcenter.local")
 DEFAULT_VM_STATUS_MAP = {

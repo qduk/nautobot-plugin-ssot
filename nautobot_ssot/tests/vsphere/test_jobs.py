@@ -32,9 +32,7 @@ class VsphereJobTest(TestCase):
         self.assertEqual("Data Center", mappings[0].source_name)
         self.assertIsNone(mappings[0].source_url)
         self.assertEqual("ClusterGroup", mappings[0].target_name)
-        self.assertEqual(
-            reverse("virtualization:clustergroup_list"), mappings[0].target_url
-        )
+        self.assertEqual(reverse("virtualization:clustergroup_list"), mappings[0].target_url)
 
         self.assertEqual("Cluster", mappings[1].source_name)
         self.assertIsNone(mappings[1].source_url)
@@ -44,16 +42,12 @@ class VsphereJobTest(TestCase):
         self.assertEqual("Virtual Machine", mappings[2].source_name)
         self.assertIsNone(mappings[2].source_url)
         self.assertEqual("Virtual Machine", mappings[2].target_name)
-        self.assertEqual(
-            reverse("virtualization:virtualmachine_list"), mappings[2].target_url
-        )
+        self.assertEqual(reverse("virtualization:virtualmachine_list"), mappings[2].target_url)
 
         self.assertEqual("VM Interface", mappings[3].source_name)
         self.assertIsNone(mappings[3].source_url)
         self.assertEqual("VMInterface", mappings[3].target_name)
-        self.assertEqual(
-            reverse("virtualization:vminterface_list"), mappings[3].target_url
-        )
+        self.assertEqual(reverse("virtualization:vminterface_list"), mappings[3].target_url)
 
         self.assertEqual("IP Addresses", mappings[4].source_name)
         self.assertIsNone(mappings[4].source_url)

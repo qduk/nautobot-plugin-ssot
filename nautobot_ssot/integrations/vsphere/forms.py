@@ -40,9 +40,7 @@ class SSOTvSphereConfigForm(NautobotModelForm):  # pylint: disable=too-many-ance
         fields = "__all__"
 
 
-class SSOTvSphereConfigFilterForm(
-    NautobotFilterForm
-):  # pylint: disable=too-many-ancestors
+class SSOTvSphereConfigFilterForm(NautobotFilterForm):  # pylint: disable=too-many-ancestors
     """Filter form for SSOTInfobloxConfig filter searches."""
 
     model = SSOTvSphereConfig

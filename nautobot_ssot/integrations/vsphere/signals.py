@@ -2,7 +2,6 @@
 # pylint: disable=duplicate-code
 """Signal handlers for nautobot_ssot_vsphere."""
 
-
 from nautobot.core.signals import nautobot_database_ready
 from nautobot.extras.choices import CustomFieldTypeChoices
 

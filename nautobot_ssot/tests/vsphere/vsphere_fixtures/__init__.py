@@ -16,9 +16,9 @@ This will return a loaded json object.
 import os
 
 from .nautobot_fixtures import (
-    localhost_client_vsphere,
     LOCALHOST,
     create_default_vsphere_config,
+    localhost_client_vsphere,
 )
 from .utilities import json_fixture
 
