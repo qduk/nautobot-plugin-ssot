@@ -16,6 +16,7 @@ from nautobot.virtualization.models import (
 from nautobot_ssot.integrations.vsphere.diffsync.adapters.adapter_nautobot import (
     Adapter,
 )
+from nautobot.ipam.models import IPAddress, Namespace, Prefix
 from nautobot_ssot.integrations.vsphere.diffsync.models.vsphere import (
     ClusterGroupModel,
     ClusterModel,
@@ -52,13 +53,25 @@ class TestNautobotAdapter(TestCase):
             disk=50,
         )
         self.test_virtualmachine.tags.set(self.tags)
-        self.vm_interface_1 = VMInterface.objects.get_or_create(
+        self.vm_interface_1, _ = VMInterface.objects.get_or_create(
             name="Test Interface",
             enabled=True,
             virtual_machine=self.test_virtualmachine,
             mac_address="AA:BB:CC:DD:EE:FF",
             status=self.status,
         )
+
+        self.prefix, _ = Prefix.objects.get_or_create(
+            network="192.168.1.0",
+            prefix_length=24,
+            namespace=Namespace.objects.get(name="Global"),
+            status=self.status,
+            type="network",
+        )
+        self.vm_ip, _ = IPAddress.objects.get_or_create(
+            host="192.168.1.1", mask_length=24, status=self.status
+        )
+        self.vm_ip.vm_interfaces.set([self.vm_interface_1])
 
     def test_load(self):
         adapter = Adapter(job=MagicMock(), config=create_default_vsphere_config())
@@ -79,6 +92,9 @@ class TestNautobotAdapter(TestCase):
         self.assertEqual(diffsync_virtualmachine.vcpus, 2)
         self.assertEqual(diffsync_virtualmachine.memory, 4094)
         self.assertEqual(diffsync_virtualmachine.disk, 50)
+        self.test_virtualmachine.primary_ip4 = self.vm_ip
+        print(VirtualMachine.objects.get(name="Test VM").interfaces.all())
+        self.assertEqual(diffsync_virtualmachine.primary_ip4__host, "192.168.1.1")
 
         # VMInterface Asserts
         diffsync_vminterface = adapter.get(
