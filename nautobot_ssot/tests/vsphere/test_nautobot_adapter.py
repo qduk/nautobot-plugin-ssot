@@ -27,19 +27,24 @@ from nautobot_ssot.integrations.vsphere.diffsync.models.vsphere import (
 from .vsphere_fixtures import create_default_vsphere_config
 
 
-class TestNautobotAdapter(TestCase):
+class TestNautobotAdapter(TestCase):  # pylint: disable=too-many-instance-attributes
     """Test cases for vSphere Nautobot adapter."""
 
     def setUp(self):
         test_cluster_type, _ = ClusterType.objects.get_or_create(name="Test")
-        self.test_cluster_group, _ = ClusterGroup.objects.get_or_create(name="Test Group")
+        self.test_cluster_group, _ = ClusterGroup.objects.get_or_create(
+            name="Test Group"
+        )
         self.test_cluster, _ = Cluster.objects.get_or_create(
             name="Test Cluster",
             cluster_type=test_cluster_type,
             cluster_group=self.test_cluster_group,
         )
         self.status, _ = Status.objects.get_or_create(name="Active")
-        self.tags = [Tag.objects.create(name=tag_name) for tag_name in ["Tag Test 1", "Tag Test 2", "Tag Test 3"]]
+        self.tags = [
+            Tag.objects.create(name=tag_name)
+            for tag_name in ["Tag Test 1", "Tag Test 2", "Tag Test 3"]
+        ]
         self.test_virtualmachine, _ = VirtualMachine.objects.get_or_create(
             name="Test VM",
             cluster=self.test_cluster,
@@ -64,10 +69,14 @@ class TestNautobotAdapter(TestCase):
             status=self.status,
             type="network",
         )
-        self.vm_ip, _ = IPAddress.objects.get_or_create(host="192.168.1.1", mask_length=24, status=self.status)
+        self.vm_ip, _ = IPAddress.objects.get_or_create(
+            host="192.168.1.1", mask_length=24, status=self.status
+        )
         self.vm_ip.vm_interfaces.set([self.vm_interface_1])
 
     def test_load(self):
+        self.test_virtualmachine.primary_ip4 = self.vm_ip
+        self.test_virtualmachine.validated_save()
         adapter = Adapter(job=MagicMock(), config=create_default_vsphere_config())
         adapter.load()
         # ClusterGroup Asserts
@@ -86,8 +95,6 @@ class TestNautobotAdapter(TestCase):
         self.assertEqual(diffsync_virtualmachine.vcpus, 2)
         self.assertEqual(diffsync_virtualmachine.memory, 4094)
         self.assertEqual(diffsync_virtualmachine.disk, 50)
-        self.test_virtualmachine.primary_ip4 = self.vm_ip
-        print(VirtualMachine.objects.get(name="Test VM").interfaces.all())
         self.assertEqual(diffsync_virtualmachine.primary_ip4__host, "192.168.1.1")
 
         # VMInterface Asserts

@@ -56,7 +56,9 @@ class TestVSphereDiffSyncModelsCreate(unittest.TestCase):
     def setUp(self):
         """Test class SetUp."""
         self.config = create_default_vsphere_config()
-        self.vsphere_adapter = VsphereDiffSync(client=MagicMock(), config=self.config, cluster_filter=None)
+        self.vsphere_adapter = VsphereDiffSync(
+            client=MagicMock(), config=self.config, cluster_filter=None
+        )
         VirtualMachine.objects.all().delete()
         Cluster.objects.all().delete()
         ClusterType.objects.all().delete()
@@ -90,7 +92,9 @@ class TestVSphereDiffSyncModelsCreate(unittest.TestCase):
         )
         self.vsphere_adapter.add(clustergroup_test)
         self.vsphere_adapter.add(cluster_test)
-        diff_clustergroup = self.vsphere_adapter.get(ClusterGroupModel, {"name": "TestClusterGroup"})
+        diff_clustergroup = self.vsphere_adapter.get(
+            ClusterGroupModel, {"name": "TestClusterGroup"}
+        )
         diff_clustergroup.add_child(cluster_test)
 
         nb_adapter = Adapter(config=self.config)
@@ -118,7 +122,9 @@ class TestVSphereDiffSyncModelsCreate(unittest.TestCase):
             cluster_group__name="TestClusterGroup",
             cluster_type__name="VMWare vSphere",
         )
-        vm_test = self.vsphere_adapter.virtual_machine(**_get_virtual_machine_dict({"name": "TestVM"}))
+        vm_test = self.vsphere_adapter.virtual_machine(
+            **_get_virtual_machine_dict({"name": "TestVM"})
+        )
         self.vsphere_adapter.add(clustergroup_test)
         self.vsphere_adapter.add(cluster_test)
         self.vsphere_adapter.add(vm_test)
@@ -153,9 +159,13 @@ class TestVSphereDiffSyncModelsCreate(unittest.TestCase):
             cluster_group__name="TestClusterGroup",
             cluster_type__name="VMWare vSphere",
         )
-        vm_test = self.vsphere_adapter.virtual_machine(**_get_virtual_machine_dict({"name": "TestVM"}))
+        vm_test = self.vsphere_adapter.virtual_machine(
+            **_get_virtual_machine_dict({"name": "TestVM"})
+        )
         vm_interface_test = self.vsphere_adapter.interface(
-            **_get_virtual_machine_interface_dict({"name": "Network Adapter 1", "virtual_machine__name": "TestVM"})
+            **_get_virtual_machine_interface_dict(
+                {"name": "Network Adapter 1", "virtual_machine__name": "TestVM"}
+            )
         )
         self.vsphere_adapter.add(clustergroup_test)
         self.vsphere_adapter.add(cluster_test)
@@ -190,9 +200,13 @@ class TestVSphereDiffSyncModelsCreate(unittest.TestCase):
             cluster_group__name="TestClusterGroup",
             cluster_type__name="VMWare vSphere",
         )
-        vm_test = self.vsphere_adapter.virtual_machine(**_get_virtual_machine_dict({"name": "TestVM"}))
+        vm_test = self.vsphere_adapter.virtual_machine(
+            **_get_virtual_machine_dict({"name": "TestVM"})
+        )
         vm_interface_test = self.vsphere_adapter.interface(
-            **_get_virtual_machine_interface_dict({"name": "Network Adapter 1", "virtual_machine__name": "TestVM"})
+            **_get_virtual_machine_interface_dict(
+                {"name": "Network Adapter 1", "virtual_machine__name": "TestVM"}
+            )
         )
         vm_interface_ip = self.vsphere_adapter.ip_address(
             host="192.168.1.1",
@@ -269,10 +283,14 @@ class TestVSphereDiffSyncModelsCreate(unittest.TestCase):
             cluster_type__name="VMWare vSphere",
         )
         vm_test = self.vsphere_adapter.virtual_machine(
-            **_get_virtual_machine_dict({"name": "TestVM", "primary_ip4__host": "192.168.1.1"})
+            **_get_virtual_machine_dict(
+                {"name": "TestVM", "primary_ip4__host": "192.168.1.1"}
+            )
         )
         vm_interface_test = self.vsphere_adapter.interface(
-            **_get_virtual_machine_interface_dict({"name": "Network Adapter 1", "virtual_machine__name": "TestVM"})
+            **_get_virtual_machine_interface_dict(
+                {"name": "Network Adapter 1", "virtual_machine__name": "TestVM"}
+            )
         )
         vm_interface_ip = self.vsphere_adapter.ip_address(
             host="192.168.1.1",
@@ -320,7 +338,9 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
     def setUp(self):
         """Test class SetUp."""
         self.config = create_default_vsphere_config()
-        self.vsphere_adapter = VsphereDiffSync(client=MagicMock(), config=self.config, cluster_filter=None)
+        self.vsphere_adapter = VsphereDiffSync(
+            client=MagicMock(), config=self.config, cluster_filter=None
+        )
         VirtualMachine.objects.all().delete()
         Cluster.objects.all().delete()
         ClusterType.objects.all().delete()
@@ -342,7 +362,9 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
         )
         self.vsphere_adapter.add(clustergroup_test)
         self.vsphere_adapter.add(cluster_test)
-        diff_clustergroup = self.vsphere_adapter.get(ClusterGroupModel, {"name": "TestClusterGroup"})
+        diff_clustergroup = self.vsphere_adapter.get(
+            ClusterGroupModel, {"name": "TestClusterGroup"}
+        )
         diff_clustergroup.add_child(cluster_test)
 
         nb_adapter = Adapter(config=self.config)
@@ -379,7 +401,9 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
             cluster_type__name="VMWare vSphere",
         )
         vm_test = self.vsphere_adapter.virtual_machine(
-            **_get_virtual_machine_dict({"name": "TestVM", "vcpus": 100, "memory": 100, "disk": 100})
+            **_get_virtual_machine_dict(
+                {"name": "TestVM", "vcpus": 100, "memory": 100, "disk": 100}
+            )
         )
         self.vsphere_adapter.add(clustergroup_test)
         self.vsphere_adapter.add(cluster_test)
@@ -430,7 +454,9 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
             cluster_group__name="TestClusterGroup",
             cluster_type__name="VMWare vSphere",
         )
-        vm_test = self.vsphere_adapter.virtual_machine(**_get_virtual_machine_dict({"name": "TestVM"}))
+        vm_test = self.vsphere_adapter.virtual_machine(
+            **_get_virtual_machine_dict({"name": "TestVM"})
+        )
         vm_interface_test = self.vsphere_adapter.interface(
             **_get_virtual_machine_interface_dict(
                 {
@@ -497,7 +523,9 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
             status=self.active_status,
             type="network",
         )
-        nb_ip = IPAddress.objects.create(host="192.168.1.1", mask_length=24, status=self.active_status)
+        nb_ip = IPAddress.objects.create(
+            host="192.168.1.1", mask_length=24, status=self.active_status
+        )
         nb_ip.vm_interfaces.set([nb_vm_interface_1])
 
         clustergroup_test = self.vsphere_adapter.clustergroup(name="TestClusterGroup")
@@ -506,9 +534,13 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
             cluster_group__name="TestClusterGroup",
             cluster_type__name="VMWare vSphere",
         )
-        vm_test = self.vsphere_adapter.virtual_machine(**_get_virtual_machine_dict({"name": "TestVM"}))
+        vm_test = self.vsphere_adapter.virtual_machine(
+            **_get_virtual_machine_dict({"name": "TestVM"})
+        )
         vm_interface_test_1 = self.vsphere_adapter.interface(
-            **_get_virtual_machine_interface_dict({"name": "Network Adapter 1", "virtual_machine__name": "TestVM"})
+            **_get_virtual_machine_interface_dict(
+                {"name": "Network Adapter 1", "virtual_machine__name": "TestVM"}
+            )
         )
         vm_interface_test_2 = self.vsphere_adapter.interface(
             **_get_virtual_machine_interface_dict(
@@ -558,7 +590,7 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
             [interface.name for interface in nb_ip.vm_interfaces.all()],
         )
 
-    def test_vm_primary_ip_update(self):
+    def test_vm_primary_ip_update(self):  # pylint: disable=too-many-locals
         nb_clustergroup = ClusterGroup.objects.create(name="TestClusterGroup")
         nb_clustertype = ClusterType.objects.create(name="VMWare vSphere")
         nb_cluster = Cluster.objects.create(
@@ -602,12 +634,16 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
             status=self.active_status,
             type="network",
         )
-        nb_ip_1 = IPAddress.objects.create(host="192.168.1.1", mask_length=24, status=self.active_status)
-        nb_ip_2 = IPAddress.objects.create(host="10.10.10.1", mask_length=24, status=self.active_status)
+        nb_ip_1 = IPAddress.objects.create(
+            host="192.168.1.1", mask_length=24, status=self.active_status
+        )
+        nb_ip_2 = IPAddress.objects.create(
+            host="10.10.10.1", mask_length=24, status=self.active_status
+        )
         nb_ip_1.vm_interfaces.set([nb_vm_interface_1])
         nb_ip_2.vm_interfaces.set([nb_vm_interface_2])
         nb_vm.primary_ip4 = nb_ip_1
-        print(nb_vm.primary_ip4.host)
+        nb_vm.validated_save()
 
         clustergroup_test = self.vsphere_adapter.clustergroup(name="TestClusterGroup")
         cluster_test = self.vsphere_adapter.cluster(
@@ -616,10 +652,14 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
             cluster_type__name="VMWare vSphere",
         )
         vm_test = self.vsphere_adapter.virtual_machine(
-            **_get_virtual_machine_dict({"name": "TestVM", "primary_ip4__host": "10.10.10.1"})
+            **_get_virtual_machine_dict(
+                {"name": "TestVM", "primary_ip4__host": "10.10.10.1"}
+            )
         )
         vm_interface_test_1 = self.vsphere_adapter.interface(
-            **_get_virtual_machine_interface_dict({"name": "Network Adapter 1", "virtual_machine__name": "TestVM"})
+            **_get_virtual_machine_interface_dict(
+                {"name": "Network Adapter 1", "virtual_machine__name": "TestVM"}
+            )
         )
         vm_interface_test_2 = self.vsphere_adapter.interface(
             **_get_virtual_machine_interface_dict(
@@ -630,17 +670,17 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
                 }
             )
         )
-        vm_interface_ip = self.vsphere_adapter.ip_address(
+        vm_interface_ip_1 = self.vsphere_adapter.ip_address(
             host="192.168.1.1",
             mask_length=24,
             status__name="Active",
-            vm_interfaces=[{"name": "Network Adapter 2"}],
+            vm_interfaces=[{"name": "Network Adapter 1"}],
         )
-        vm_interface_ip = self.vsphere_adapter.ip_address(
+        vm_interface_ip_2 = self.vsphere_adapter.ip_address(
             host="10.10.10.1",
             mask_length=24,
             status__name="Active",
-            vm_interfaces=[],
+            vm_interfaces=[{"name": "Network Adapter 2"}],
         )
         prefix_test_1 = self.vsphere_adapter.prefix(
             network="192.168.1.0",
@@ -661,18 +701,21 @@ class TestVSphereDiffSyncModelsUpdate(unittest.TestCase):
         self.vsphere_adapter.add(vm_test)
         self.vsphere_adapter.add(vm_interface_test_1)
         self.vsphere_adapter.add(vm_interface_test_2)
-        self.vsphere_adapter.add(vm_interface_ip)
+        self.vsphere_adapter.add(vm_interface_ip_1)
+        self.vsphere_adapter.add(vm_interface_ip_2)
         self.vsphere_adapter.add(prefix_test_1)
         self.vsphere_adapter.add(prefix_test_2)
         clustergroup_test.add_child(cluster_test)
         cluster_test.add_child(vm_test)
         vm_test.add_child(vm_interface_test_1)
         vm_test.add_child(vm_interface_test_2)
-        vm_interface_test_1.add_child(vm_interface_ip)
+        vm_interface_test_1.add_child(vm_interface_ip_1)
+        vm_interface_test_2.add_child(vm_interface_ip_2)
 
         nb_adapter = Adapter(config=self.config)
         nb_adapter.job = MagicMock()
         nb_adapter.load()
+
         self.vsphere_adapter.sync_to(nb_adapter)
         nb_adapter.sync_complete(source=None, diff=None)
         nb_vm = VirtualMachine.objects.get(name="TestVM")

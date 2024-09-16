@@ -23,7 +23,7 @@ from nautobot_ssot.integrations.vsphere.diffsync.adapters import (
 )
 from nautobot_ssot.integrations.vsphere.utilities import VsphereClient
 from nautobot_ssot.jobs.base import DataMapping, DataSource
-from nautobot_ssot.models import SSOTvSphereConfig
+from nautobot_ssot.integrations.vsphere.models import SSOTvSphereConfig
 
 name = "SSoT - Virtualization"  # pylint: disable=invalid-name
 
@@ -133,7 +133,9 @@ class VsphereDataSource(DataSource):  # pylint: disable=too-many-instance-attrib
                 "ClusterGroup",
                 reverse("virtualization:clustergroup_list"),
             ),
-            DataMapping("Cluster", None, "Cluster", reverse("virtualization:cluster_list")),
+            DataMapping(
+                "Cluster", None, "Cluster", reverse("virtualization:cluster_list")
+            ),
             DataMapping(
                 "Virtual Machine",
                 None,
@@ -146,7 +148,9 @@ class VsphereDataSource(DataSource):  # pylint: disable=too-many-instance-attrib
                 "VMInterface",
                 reverse("virtualization:vminterface_list"),
             ),
-            DataMapping("IP Addresses", None, "IP Addresses", reverse("ipam:ipaddress_list")),
+            DataMapping(
+                "IP Addresses", None, "IP Addresses", reverse("ipam:ipaddress_list")
+            ),
         )
 
     def log_debug(self, message):
@@ -158,7 +162,9 @@ class VsphereDataSource(DataSource):  # pylint: disable=too-many-instance-attrib
         """Load vSphere adapter."""
         self.logger.info("Connecting to vSphere.")
         client_config = _get_vsphere_client_config(self.config, self.debug)
-        client = VsphereClient(**client_config)
+        client = VsphereClient(  # pylint: disable=unexpected-keyword-arg
+            **client_config
+        )
         self.source_adapter = VsphereDiffSync(
             job=self,
             sync=self.sync,
@@ -204,11 +210,15 @@ class VsphereDataSource(DataSource):  # pylint: disable=too-many-instance-attrib
         )
         self.config = kwargs.get("config")
         if not self.config.enable_sync_to_nautobot:
-            self.logger.error("Can't run sync to Nautobot, provided config does not have it enabled.")
+            self.logger.error(
+                "Can't run sync to Nautobot, provided config does not have it enabled."
+            )
             raise ValueError("Config not enabled for sync to Nautobot.")
         options = f"`Debug`: {self.debug}, `Dry Run`: {self.dryrun}, `Sync Tagged Only`: {self.sync_vsphere_tagged_only}, `Cluster Filter`: {self.cluster_filter_object}"  # NOQA
         self.logger.info(message=f"Starting job with the following options: {options}")
-        return super().run(dryrun, memory_profiling, sync_vsphere_tagged_only, *args, **kwargs)
+        return super().run(
+            dryrun, memory_profiling, sync_vsphere_tagged_only, *args, **kwargs
+        )
 
 
 jobs = [VsphereDataSource]

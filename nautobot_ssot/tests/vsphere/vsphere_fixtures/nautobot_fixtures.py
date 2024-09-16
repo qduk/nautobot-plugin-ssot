@@ -1,3 +1,4 @@
+# pylint: disable=R0801
 """Nautobot Object Fixtures."""
 
 import os
