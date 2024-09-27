@@ -48,9 +48,7 @@ class Adapter(NautobotAdapter):
     #     """Load primary_ip4 host into Diffsync store."""
     #     return str(getattr(database_object, parameter_name))
 
-    def sync_complete(
-        self, source, diff, flags: DiffSyncFlags = DiffSyncFlags.NONE, logger=None
-    ):
+    def sync_complete(self, source, diff, flags: DiffSyncFlags = DiffSyncFlags.NONE, logger=None):
         """Update devices with their primary IPs once the sync is complete."""
         for info in self._primary_ips:
             vm = VirtualMachine.objects.get(**info["device"])

@@ -32,19 +32,14 @@ class TestNautobotAdapter(TestCase):  # pylint: disable=too-many-instance-attrib
 
     def setUp(self):
         test_cluster_type, _ = ClusterType.objects.get_or_create(name="Test")
-        self.test_cluster_group, _ = ClusterGroup.objects.get_or_create(
-            name="Test Group"
-        )
+        self.test_cluster_group, _ = ClusterGroup.objects.get_or_create(name="Test Group")
         self.test_cluster, _ = Cluster.objects.get_or_create(
             name="Test Cluster",
             cluster_type=test_cluster_type,
             cluster_group=self.test_cluster_group,
         )
         self.status, _ = Status.objects.get_or_create(name="Active")
-        self.tags = [
-            Tag.objects.create(name=tag_name)
-            for tag_name in ["Tag Test 1", "Tag Test 2", "Tag Test 3"]
-        ]
+        self.tags = [Tag.objects.create(name=tag_name) for tag_name in ["Tag Test 1", "Tag Test 2", "Tag Test 3"]]
         self.test_virtualmachine, _ = VirtualMachine.objects.get_or_create(
             name="Test VM",
             cluster=self.test_cluster,
@@ -69,9 +64,7 @@ class TestNautobotAdapter(TestCase):  # pylint: disable=too-many-instance-attrib
             status=self.status,
             type="network",
         )
-        self.vm_ip, _ = IPAddress.objects.get_or_create(
-            host="192.168.1.1", mask_length=24, status=self.status
-        )
+        self.vm_ip, _ = IPAddress.objects.get_or_create(host="192.168.1.1", mask_length=24, status=self.status)
         self.vm_ip.vm_interfaces.set([self.vm_interface_1])
 
     def test_load(self):
