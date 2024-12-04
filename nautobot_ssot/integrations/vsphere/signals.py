@@ -84,7 +84,7 @@ def nautobot_database_ready_callback(sender, *, apps, **kwargs):  # pylint: disa
 
     custom_field, _ = CustomField.objects.get_or_create(
         type=CustomFieldTypeChoices.TYPE_DATE,
-        key="last-synced-from-vsphere-on",
+        key="last_synced_from_vsphere_on",
         defaults={
             "label": "Last synced from vSphere on",
         },
